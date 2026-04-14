@@ -231,8 +231,8 @@ Tested on public hallucination datasets — no cherry-picking, full results.
 
 | Benchmark | Samples | Precision | Recall | F1 | Runtime |
 |---|---|---|---|---|---|
-| **HaluEval QA** | 16,662 | 99.98% | 98.6% | **99.3%** | 27s |
-| **FaithBench** (w/ NLI) | 750 | 59.9% | 96.8% | 74.0% | 1,018s |
+| **HaluEval QA** | 16,662 | 99.98% | 98.6% | **99.3%** | 8s |
+| **FaithBench** | 750 | 59.9% | 96.8% | 74.0% | 4s |
 | **Production traces** | — | 97.9% | 92.0% | **94.8%** | — |
 
 **HaluEval QA** (Li et al., 2023): 16,662 question–answer pairs with known hallucinations. Stozer detected 98.6% of hallucinated answers with near-zero false positives (2 out of 16K samples).
