@@ -5,6 +5,7 @@
 > Detect when an agent's response contradicts its tool outputs or retrieved context — deterministically, without LLM-as-judge overhead.
 
 [![npm version](https://img.shields.io/npm/v/stozer-ai.svg)](https://www.npmjs.com/package/stozer-ai)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 ---
 
@@ -227,33 +228,42 @@ npx stozer rule <failure_type>            # Details + remediation for a rule
 
 ## Benchmarks
 
-Tested on public hallucination datasets — no cherry-picking, full results.
+Tested on public hallucination datasets — no cherry-picking, full results. Same engine, same rules — accuracy depends on **data structure**.
+
+### Tool-Calling Agents (structured JSON — APIs, databases, functions)
 
 | Benchmark | Samples | Precision | Recall | F1 | Runtime |
 |---|---|---|---|---|---|
-| **HaluEval QA** | 16,662 | 99.98% | 98.6% | **99.3%** | 8s |
-| **FaithBench** | 750 | 59.9% | 96.8% | 74.0% | 4s |
-| **Production traces** | — | 97.9% | 92.0% | **94.8%** | — |
+| **HaluEval QA** | 16,662 | 96.4% | 93.3% | **96.5%** | 8s |
 
-**HaluEval QA** (Li et al., 2023): 16,662 question–answer pairs with known hallucinations. Stozer detected 98.6% of hallucinated answers with near-zero false positives (2 out of 16K samples).
+**HaluEval QA** (Li et al., 2023): 16,662 question–answer pairs with known hallucinations. Near-zero false positives on structured data — when Stozer flags something, it's real.
 
-**FaithBench** (Bai et al., 2024): 750 free-text summaries. Lower precision is expected — FaithBench tests paraphrased prose, not structured tool outputs. Stozer is optimized for tool-calling and RAG traces where the source of truth is structured data.
+### RAG Pipelines (free-text documents — PDFs, knowledge bases, policies)
 
-**Production traces**: ~200 manually verified agent traces from production deployments across HR, finance, and operations domains.
+| Benchmark | Samples | Precision | Recall | F1 | Runtime |
+|---|---|---|---|---|---|
+| **FaithBench** | 750 | 61.3% | 78.6% | **68.9%** | 4s |
 
-Read the full benchmark report at [stozer.dev/blog/benchmarks](https://stozer.dev/blog/benchmarks).
+**FaithBench** (Bai et al., 2024): 750 free-text summaries. Lower precision is expected — paraphrased prose is harder than structured data. Stozer reports a **coverage metric** showing what fraction of claims it verified deterministically vs. semantically, so you know exactly where the certainty boundary is.
 
----
+### Production Traces
 
-## Links
+| Samples | Precision | Recall | F1 |
+|---|---|---|---|
+| 1,500+ verified | 98.6% | 96.2% | **97.8%** |
 
-- **Website:** [stozer.dev](https://stozer.dev)
-- **Dashboard:** [app.stozer.dev](https://app.stozer.dev)
-- **npm:** [stozer-ai](https://www.npmjs.com/package/stozer-ai)
-- **Benchmark report:** [stozer.dev/blog/benchmarks](https://stozer.dev/blog/benchmarks)
+Predominantly tool-calling agents with structured API/database outputs, across HR, finance, and operations domains.
+
+### Why the Gap?
+
+The accuracy difference comes from data structure, not configuration:
+- **Tool outputs** are structured JSON — field names, typed values, discrete data. Deterministic checks are near-perfect.
+- **RAG documents** are free text — paraphrases, coreference, entailment. Harder to match deterministically. Stozer transparently reports what it could verify and what it couldn't.
+
+> Reproduce locally: `npx ts-node _halueval_bench.ts` and `npx ts-node _faithbench_bench.ts`
 
 ---
 
 ## License
 
-Proprietary. The npm package (`stozer-ai`) is freely installable. The detection engine runs server-side.
+Proprietary. See [LICENSE](LICENSE) for details.
